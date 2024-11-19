@@ -1,15 +1,51 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { Play, Info, VolumeX, Volume2 } from 'lucide-react'
 
 export default function Hero({ movie }) {
-  const videoRef = useRef(null)
-  const [muted, setMuted] = React.useState(true)
+  const [muted, setMuted] = useState(true)
+  const [player, setPlayer] = useState(null)
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = muted
+    if (movie && movie.trailer) {
+      const tag = document.createElement('script')
+      tag.src = 'https://www.youtube.com/iframe_api'
+      const firstScriptTag = document.getElementsByTagName('script')[0]
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
+
+      window.onYouTubeIframeAPIReady = () => {
+        const newPlayer = new window.YT.Player('youtube-player', {
+          height: '100%',
+          width: '100%',
+          videoId: movie.trailer.key,
+          playerVars: {
+            autoplay: 1,
+            controls: 0,
+            mute: 1,
+            loop: 1,
+            modestbranding: 1,
+            playlist: movie.trailer.key
+          },
+          events: {
+            onReady: (event) => {
+              setPlayer(event.target)
+            },
+          },
+        })
+      }
     }
-  }, [muted])
+
+    return () => {
+      if (player) {
+        player.destroy()
+      }
+    }
+  }, [movie])
+
+  useEffect(() => {
+    if (player) {
+      muted ? player.mute() : player.unMute()
+    }
+  }, [muted, player])
 
   if (!movie) return null
 
@@ -19,17 +55,7 @@ export default function Hero({ movie }) {
     <header className="relative h-[80vh]">
       {movie.trailer ? (
         <div className="absolute inset-0 overflow-hidden">
-          <video
-            ref={videoRef}
-            className="w-full h-full object-cover"
-            autoPlay
-            loop
-            muted
-            playsInline
-          >
-            <source src={`https://www.youtube.com/watch?v=${movie.trailer.key}`} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+          <div id="youtube-player" className="w-full h-full"></div>
           <div className="absolute bottom-4 right-4">
             <button
               onClick={() => setMuted(!muted)}

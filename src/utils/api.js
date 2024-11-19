@@ -25,18 +25,34 @@ export const fetchTopRated = async () => {
   return data.results;
 };
 
-export const fetchActionMovies = async () => {
+export const fetchMoviesByGenre = async (genreId) => {
   const response = await fetch(
-    `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=28`
+    `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}`
   );
   const data = await response.json();
   return data.results;
 };
 
-export const fetchComedyMovies = async () => {
+export const fetchTVShows = async () => {
   const response = await fetch(
-    `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=35`
+    `${BASE_URL}/discover/tv?api_key=${API_KEY}&language=en-US`
   );
   const data = await response.json();
   return data.results;
+};
+
+export const fetchNewAndPopular = async () => {
+  const response = await fetch(
+    `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=en-US`
+  );
+  const data = await response.json();
+  return data.results;
+};
+
+export const fetchMovieTrailer = async (movieId) => {
+  const response = await fetch(
+    `${BASE_URL}/movie/${movieId}/videos?api_key=${API_KEY}&language=en-US`
+  );
+  const data = await response.json();
+  return data.results.find(video => video.type === "Trailer" && video.site === "YouTube");
 };
