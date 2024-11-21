@@ -1,9 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { Play, Info, VolumeX, Volume2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 export default function Hero({ movie }) {
   const [muted, setMuted] = useState(true)
   const [player, setPlayer] = useState(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (movie && movie.trailer) {
@@ -47,6 +49,18 @@ export default function Hero({ movie }) {
     }
   }, [muted, player])
 
+  const handlePlayClick = () => {
+    if (movie.trailer) {
+      window.open(`https://www.youtube.com/watch?v=${movie.trailer.key}`, '_blank')
+    } else {
+      alert('Trailer unavailable')
+    }
+  }
+
+  const handleMoreInfoClick = () => {
+    navigate(`/movie/${movie.id}`)
+  }
+
   if (!movie) return null
 
   const backdropPath = `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
@@ -76,12 +90,18 @@ export default function Hero({ movie }) {
       <div className="absolute bottom-0 left-0 p-8 space-y-4 max-w-xl">
         <h1 className="text-5xl font-bold">{movie.title || movie.name}</h1>
         <p className="text-lg">{movie.overview}</p>
-        <div className="space-x-4">
-          <button className="bg-white text-black px-6 py-2 rounded flex items-center">
+        <div className="flex space-x-4">
+          <button 
+            className="bg-white text-black px-6 py-2 rounded flex items-center hover:bg-opacity-80 transition-colors duration-200"
+            onClick={handlePlayClick}
+          >
             <Play className="mr-2" size={20} />
             Play
           </button>
-          <button className="bg-gray-500 bg-opacity-50 text-white px-6 py-2 rounded flex items-center">
+          <button 
+            className="bg-gray-500 bg-opacity-50 text-white px-6 py-2 rounded flex items-center hover:bg-opacity-70 transition-colors duration-200"
+            onClick={handleMoreInfoClick}
+          >
             <Info className="mr-2" size={20} />
             More Info
           </button>

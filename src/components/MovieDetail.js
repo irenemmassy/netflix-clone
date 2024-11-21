@@ -46,32 +46,30 @@ export default function MovieDetail() {
     alert(`Thanks for rating this movie ${rating} stars!`);
   };
 
-  // Close modal and navigate back
-  const closeModal = () => {
-    // Ensure it navigates back to the previous page
-    navigate(-1);
-  };
-
-  // Fallback: If the modal is not inside routing, use a forced state update
-  const forceClose = () => {
-    // This assumes you're controlling the modal rendering from a parent
-    if (typeof navigate === "function") closeModal();
-    else window.location.reload(); // Fallback if routing is misconfigured
-  };
+  // Updated close modal function
+  const handleClose = () => {
+    navigate('/')  // This will always navigate to the homepage
+  }
 
   if (!movie) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 z-50 overflow-y-auto">
       <div className="relative max-w-5xl mx-auto my-10 bg-gray-900 rounded-lg shadow-lg">
-        {/* Close Button */}
+        {/* Updated Close Button */}
         <button
-          onClick={closeModal}
-          className="absolute top-4 right-4 text-white hover:text-gray-300"
+          onClick={handleClose}
+          className="absolute top-4 right-4 z-50 text-white hover:text-gray-300 bg-gray-900 bg-opacity-50 rounded-full p-2 transition-colors duration-200"
           aria-label="Close"
         >
           <X size={24} />
         </button>
+
+        {/* You can also add click outside to close */}
+        <div 
+          className="absolute inset-0 -z-10" 
+          onClick={handleClose}
+        ></div>
 
         {/* Movie Trailer or Backdrop */}
         <div className="relative aspect-video">
