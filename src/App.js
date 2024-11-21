@@ -1,10 +1,25 @@
 import React, { useState, useEffect } from 'react'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { auth, onAuthStateChanged } from './utils/firebase'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Row from './components/Row'
 import Footer from './components/Footer'
-import { fetchTrending, fetchNetflixOriginals, fetchTopRated, fetchMoviesByGenre, fetchTVShows, fetchNewAndPopular, fetchMovieTrailer } from './utils/api'
+import Kids from './components/Kids'
+import MyList from './components/MyList'
+import LoadingSpinner from './components/LoadingSpinner'
+
+import { 
+  fetchTrending, 
+  fetchNetflixOriginals, 
+  fetchTopRated, 
+  fetchMovieGenres, 
+  fetchTVGenres, 
+  fetchMoviesByGenre, 
+  fetchTVShowsByGenre, 
+  fetchNewAndPopular, 
+  fetchMovieTrailer 
+} from './utils/api'
 
 export default function App() {
   const [user, setUser] = useState(null)
@@ -12,13 +27,17 @@ export default function App() {
     trending: [],
     netflixOriginals: [],
     topRated: [],
-    action: [],
-    comedy: [],
-    tvShows: [],
-    newAndPopular: []
+    newAndPopular: [],
+    moviesByGenre: [],
+    tvShowsByGenre: []
   })
   const [featuredMovie, setFeaturedMovie] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState('all')
+  const [movieGenres, setMovieGenres] = useState([])
+  const [tvGenres, setTVGenres] = useState([])
+  const [selectedGenre, setSelectedGenre] = useState(null)
+  const [myList, setMyList] = useState([])
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -30,15 +49,14 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    const fetchMovies = async () => {
+    const fetchInitialData = async () => {
       try {
-        const [trending, netflixOriginals, topRated, action, comedy, tvShows, newAndPopular] = await Promise.all([
+        const [trending, netflixOriginals, topRated, movieGenres, tvGenres, newAndPopular] = await Promise.all([
           fetchTrending(),
           fetchNetflixOriginals(),
           fetchTopRated(),
-          fetchMoviesByGenre(28), // Action movies
-          fetchMoviesByGenre(35), // Comedy movies
-          fetchTVShows(),
+          fetchMovieGenres(),
+          fetchTVGenres(),
           fetchNewAndPopular()
         ])
 
@@ -46,52 +64,135 @@ export default function App() {
           trending,
           netflixOriginals,
           topRated,
-          action,
-          comedy,
-          tvShows,
-          newAndPopular
+          newAndPopular,
+          moviesByGenre: [],
+          tvShowsByGenre: []
         })
+
+        setMovieGenres(movieGenres)
+        setTVGenres(tvGenres)
 
         const randomMovie = netflixOriginals[Math.floor(Math.random() * netflixOriginals.length)]
         const trailer = await fetchMovieTrailer(randomMovie.id)
         setFeaturedMovie({ ...randomMovie, trailer })
       } catch (error) {
-        console.error("Error fetching movies:", error)
+        console.error("Error fetching initial data:", error)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchMovies()
+    fetchInitialData()
   }, [])
 
+  useEffect(() => {
+    const fetchFilteredContent = async () => {
+      if (selectedGenre) {
+        try {
+          setLoading(true)
+          const filteredContent = filter === 'movies' 
+            ? await fetchMoviesByGenre(selectedGenre.id)
+            : await fetchTVShowsByGenre(selectedGenre.id)
+          
+          setMovies(prevMovies => ({
+            ...prevMovies,
+            [filter === 'movies' ? 'moviesByGenre' : 'tvShowsByGenre']: filteredContent
+          }))
+        } catch (error) {
+          console.error("Error fetching filtered content:", error)
+        } finally {
+          setLoading(false)
+        }
+      }
+    }
+
+    fetchFilteredContent()
+  }, [filter, selectedGenre])
+
+  const filteredContent = () => {
+    if (selectedGenre) {
+      return [
+        { title: `${filter === 'movies' ? 'Movies' : 'TV Shows'} - ${selectedGenre.name}`, content: movies[filter === 'movies' ? 'moviesByGenre' : 'tvShowsByGenre'] || [] }
+      ]
+    }
+
+    switch (filter) {
+      case 'movies':
+        return [
+          { title: "Trending Movies", content: movies.trending.filter(item => item.media_type === 'movie') },
+          { title: "Top Rated Movies", content: movies.topRated },
+        ]
+      case 'tvShows':
+        return [
+          { title: "Trending TV Shows", content: movies.trending.filter(item => item.media_type === 'tv') },
+          { title: "Netflix Originals", content: movies.netflixOriginals },
+        ]
+      case 'latest':
+        return [
+          { title: "New & Popular", content: movies.newAndPopular },
+        ]
+      default:
+        return [
+          { title: "Trending Now", content: movies.trending },
+          { title: "Netflix Originals", content: movies.netflixOriginals },
+          { title: "Top Rated", content: movies.topRated },
+          { title: "New & Popular", content: movies.newAndPopular },
+        ]
+    }
+  }
+
+  const addToMyList = (movie) => {
+    setMyList((prevList) => [...prevList, movie])
+  }
+
+  const removeFromMyList = (movieId) => {
+    setMyList((prevList) => prevList.filter((movie) => movie.id !== movieId))
+  }
+
   if (loading) {
-    return <div className="flex items-center justify-center h-screen bg-black text-white">Loading...</div>
+    return <LoadingSpinner />
   }
 
   return (
-    <div className="bg-black text-white min-h-screen">
-      <Navbar user={user} />
-      <main className="pt-16">
-        {user ? (
-          <>
-            <Hero movie={featuredMovie} />
-            <Row title="Trending Now" movies={movies.trending} />
-            <Row title="Netflix Originals" movies={movies.netflixOriginals} />
-            <Row title="Top Rated" movies={movies.topRated} />
-            <Row title="Action Movies" movies={movies.action} />
-            <Row title="Comedies" movies={movies.comedy} />
-            <Row title="TV Shows" movies={movies.tvShows} />
-            <Row title="New & Popular" movies={movies.newAndPopular} />
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center h-[calc(100vh-64px)]">
-            <h1 className="text-4xl font-bold mb-4">Welcome to Netflix Clone</h1>
-            <p className="text-xl mb-8">Sign in to start watching</p>
-          </div>
-        )}
-      </main>
-      <Footer />
-    </div>
+    <Router>
+      <div className="bg-black text-white min-h-screen">
+        <Navbar 
+          user={user} 
+          setFilter={setFilter} 
+          movieGenres={movieGenres} 
+          tvGenres={tvGenres} 
+          setSelectedGenre={setSelectedGenre}
+        />
+        <Routes>
+          <Route path="/" element={
+            <main className="pt-16">
+              {user ? (
+                <>
+                  <Hero movie={featuredMovie} />
+                  {filteredContent().map((row, index) => (
+                    <Row 
+                      key={index} 
+                      title={row.title} 
+                      movies={row.content} 
+                      addToMyList={addToMyList}
+                      removeFromMyList={removeFromMyList}
+                      myList={myList}
+                    />
+                  ))}
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-[calc(100vh-64px)]">
+                  <h1 className="text-4xl font-bold mb-4">Welcome to Netflix Clone</h1>
+                  <p className="text-xl mb-8">Sign in to start watching</p>
+                </div>
+              )}
+            </main>
+          } />
+          <Route path="/kids" element={<Kids />} />
+          <Route path="/my-list" element={<MyList myList={myList} removeFromMyList={removeFromMyList} />} />
+        </Routes>
+        <Footer />
+      </div>
+    </Router>
   )
 }
