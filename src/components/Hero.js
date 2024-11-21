@@ -90,19 +90,21 @@ export default function Hero({ movie }) {
       <div className="absolute bottom-0 left-0 p-8 space-y-4 max-w-xl">
         <h1 className="text-5xl font-bold">{movie.title || movie.name}</h1>
         <p className="text-lg">{movie.overview}</p>
-        <div className="flex space-x-4">
+        <div className="flex gap-3">
           <button 
-            className="bg-white text-black px-6 py-2 rounded flex items-center hover:bg-opacity-80 transition-colors duration-200"
+            className="flex items-center justify-center gap-2 bg-white hover:bg-white/80 
+              text-black font-semibold px-8 py-2 rounded"
             onClick={handlePlayClick}
           >
-            <Play className="mr-2" size={20} />
+            <Play className="w-7 h-7" />
             Play
           </button>
           <button 
-            className="bg-gray-500 bg-opacity-50 text-white px-6 py-2 rounded flex items-center hover:bg-opacity-70 transition-colors duration-200"
+            className="flex items-center justify-center gap-2 bg-gray-500/50 hover:bg-gray-500/40
+              text-white font-semibold px-8 py-2 rounded"
             onClick={handleMoreInfoClick}
           >
-            <Info className="mr-2" size={20} />
+            <Info className="w-7 h-7" />
             More Info
           </button>
         </div>
