@@ -34,7 +34,8 @@ export default function Navbar({ user, setFilter, movieGenres, tvGenres, setSele
   }
 
   const handleHomeClick = () => {
-    window.scrollTo(0, 0)
+    setFilter('all')
+    setSelectedGenre(null)
     navigate('/')
   }
 
@@ -43,11 +44,13 @@ export default function Navbar({ user, setFilter, movieGenres, tvGenres, setSele
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <img 
-              src="/placeholder.svg?height=40&width=120" 
-              alt="Netflix" 
-              className="h-8"
-            />
+            <Link to="/" onClick={handleHomeClick}>
+              <img 
+                src="/placeholder.svg?height=40&width=120" 
+                alt="Netflix" 
+                className="h-8"
+              />
+            </Link>
             {user && (
               <div className="hidden md:block ml-10">
                 <div className="flex items-baseline space-x-4">
@@ -102,8 +105,8 @@ export default function Navbar({ user, setFilter, movieGenres, tvGenres, setSele
                       </div>
                     )}
                   </div>
-                  <button onClick={() => setFilter('latest')} className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">New & Popular</button>
-                  <Link to="/my-list" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">My List</Link>
+                  <Link to="/new-and-popular" onClick={() => setFilter('latest')} className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">New & Popular</Link>
+                  <Link to="/my-list" onClick={() => setFilter('myList')} className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">My List</Link>
                 </div>
               </div>
             )}

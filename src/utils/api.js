@@ -41,10 +41,23 @@ export const fetchTVShows = async () => {
   return data.results;
 };
 
-export const fetchNewAndPopular = async () => {
-  const response = await fetch(
-    `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=en-US`
-  );
+export const fetchNewAndPopular = async (category = 'trending') => {
+  let url;
+  switch (category) {
+    case 'trending':
+      url = `${BASE_URL}/trending/all/day?api_key=${API_KEY}`;
+      break;
+    case 'this_week':
+      url = `${BASE_URL}/trending/all/week?api_key=${API_KEY}`;
+      break;
+    case 'coming_soon':
+      url = `${BASE_URL}/movie/upcoming?api_key=${API_KEY}`;
+      break;
+    default:
+      url = `${BASE_URL}/trending/all/day?api_key=${API_KEY}`;
+  }
+  
+  const response = await fetch(url);
   const data = await response.json();
   return data.results;
 };

@@ -8,6 +8,9 @@ import Footer from './components/Footer'
 import Kids from './components/Kids'
 import MyList from './components/MyList'
 import LoadingSpinner from './components/LoadingSpinner'
+import Account from './components/Account'
+import Settings from './components/Settings'
+import NewAndPopular from './components/NewAndPopular'
 
 import { 
   fetchTrending, 
@@ -190,6 +193,9 @@ export default function App() {
           } />
           <Route path="/kids" element={<Kids />} />
           <Route path="/my-list" element={<MyList myList={myList} removeFromMyList={removeFromMyList} />} />
+          <Route path="/new-and-popular" element={<NewAndPopular />} />
+          <Route path="/account" element={<Account user={user} />} />
+          <Route path="/settings" element={<Settings user={user} />} />
         </Routes>
         <Footer />
       </div>
