@@ -45,11 +45,7 @@ export default function Navbar({ user, setFilter, movieGenres, tvGenres, setSele
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" onClick={handleHomeClick}>
-              <img 
-                src="/placeholder.svg?height=40&width=120" 
-                alt="Netflix" 
-                className="h-8"
-              />
+              <span className="text-white text-2xl font-bold">MyFlix</span>
             </Link>
             {user && (
               <div className="hidden md:block ml-10">

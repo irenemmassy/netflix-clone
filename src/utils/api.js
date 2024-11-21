@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const API_KEY = "47837b662d7a3785cb2e0b55196fba77";
 const BASE_URL = "https://api.themoviedb.org/3";
 
@@ -63,11 +65,34 @@ export const fetchNewAndPopular = async (category = 'trending') => {
 };
 
 export const fetchMovieTrailer = async (movieId) => {
-  const response = await fetch(
-    `${BASE_URL}/movie/${movieId}/videos?api_key=${API_KEY}&language=en-US`
-  );
-  const data = await response.json();
-  return data.results.find(video => video.type === "Trailer" && video.site === "YouTube");
+  try {
+    const response = await axios.get(`${BASE_URL}/movie/${movieId}/videos`, {
+      params: {
+        api_key: API_KEY,
+        language: 'en-US',
+      },
+    });
+    const trailers = response.data.results.filter(video => video.type === 'Trailer');
+    return trailers.length > 0 ? trailers[0] : null;
+  } catch (error) {
+    console.error('Error fetching movie trailer:', error);
+    throw error;
+  }
+};
+
+export const fetchMovieDetails = async (movieId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/movie/${movieId}`, {
+      params: {
+        api_key: API_KEY,
+        language: 'en-US',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching movie details:', error);
+    throw error;
+  }
 };
 
 export const fetchMovieGenres = async () => {

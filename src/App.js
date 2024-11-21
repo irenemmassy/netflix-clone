@@ -11,6 +11,7 @@ import LoadingSpinner from './components/LoadingSpinner'
 import Account from './components/Account'
 import Settings from './components/Settings'
 import NewAndPopular from './components/NewAndPopular'
+import MovieDetail from './components/MovieDetail'
 
 import { 
   fetchTrending, 
@@ -79,7 +80,7 @@ export default function App() {
         const trailer = await fetchMovieTrailer(randomMovie.id)
         setFeaturedMovie({ ...randomMovie, trailer })
       } catch (error) {
-        console.error("Error fetching initial data:", error)
+        console.error("Error fetching initial data:", error.response ? error.response.data : error.message)
       } finally {
         setLoading(false)
       }
@@ -196,6 +197,7 @@ export default function App() {
           <Route path="/new-and-popular" element={<NewAndPopular />} />
           <Route path="/account" element={<Account user={user} />} />
           <Route path="/settings" element={<Settings user={user} />} />
+          <Route path="/movie/:id" element={<MovieDetail />} />
         </Routes>
         <Footer />
       </div>

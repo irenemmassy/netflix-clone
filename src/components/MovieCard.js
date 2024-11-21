@@ -1,10 +1,13 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Play, Info, Plus, ThumbsUp, ThumbsDown, Minus } from 'lucide-react'
 
 export default function MovieCard({ movie, addToMyList, removeFromMyList, isInMyList }) {
   const [isHovered, setIsHovered] = useState(false)
+  const navigate = useNavigate()
 
-  const handleAddToMyList = () => {
+  const handleAddToMyList = (e) => {
+    e.stopPropagation()
     if (isInMyList) {
       removeFromMyList(movie.id)
     } else {
@@ -12,11 +15,16 @@ export default function MovieCard({ movie, addToMyList, removeFromMyList, isInMy
     }
   }
 
+  const handleCardClick = () => {
+    navigate(`/movie/${movie.id}`)
+  }
+
   return (
     <div 
-      className="relative w-[200px] h-[300px] overflow-hidden rounded-md transition-transform duration-300 ease-in-out transform hover:scale-105 mx-2 my-4 group"
+      className="relative w-[200px] h-[300px] overflow-hidden rounded-md transition-transform duration-300 ease-in-out transform hover:scale-105 mx-2 my-4 group cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCardClick}
     >
       <img
         src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
